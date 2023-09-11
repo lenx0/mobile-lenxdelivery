@@ -1,17 +1,46 @@
 import { StyleSheet, Text, View } from "react-native";
+import { Order } from "../types";
+import dayjs from "dayjs";
+import "dayjs/locale/pt-br";
+import relativeTime from "dayjs/plugin/relativeTime";
 
-export default function OrderCard() {
+dayjs.extend(relativeTime);
+dayjs.locale("pt-br");
+
+type Props = {
+  order: Order;
+};
+
+function dateFromNow(date: string) {
+  return dayjs(date).fromNow();
+}
+
+export function formatPrice(totalPrice: number) {
+  const formatter = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: 2,
+  });
+  return formatter.format(totalPrice);
+}
+
+export default function OrderCard({ order }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.orderName}>Pedido Nº1</Text>
-        <Text style={styles.orderPrice}>R$ 50,00</Text>
+        <Text style={styles.orderName}>
+          Pedido: {"\n"}
+          {order._id}
+        </Text>
+        <Text style={styles.orderPrice}>{formatPrice(order?.totalPrice)}</Text>
       </View>
-      <Text style={styles.text}>há 30 min.</Text>
+      <Text style={styles.text}>{dateFromNow(order.moment)}</Text>
       <View style={styles.productsList}>
-        <Text style={styles.text}>Pizza Calabresa</Text>
-        <Text style={styles.text}>Pizza 4 queijos</Text>
-        <Text style={styles.text}>Pizza Portuguesa</Text>
+        {order.products.map((product) => (
+          <Text key={product._id} style={styles.text}>
+            {product.name}
+          </Text>
+        ))}
       </View>
     </View>
   );
